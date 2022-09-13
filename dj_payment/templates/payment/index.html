@@ -1,0 +1,11 @@
+{% extends "payment/base.html" %}
+{% block title %}Index{% endblock %}
+{% block content %}
+  <h1>Items available</h1>
+  <ul>
+    {% for item in item_list %}
+      <li><p><a href="{% url 'payment:item' item.pk %}">{{ item.name }}</a></p></li>
+    {% endfor %}
+  </ul>
+  {% include "payment/includes/back_to_main.html" %}
+{% endblock %}

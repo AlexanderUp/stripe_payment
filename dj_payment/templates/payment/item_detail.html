@@ -1,0 +1,17 @@
+{% extends "payment/base.html" %}
+{% block title %}Item "{{ object.name }}" Info{% endblock %}
+{% block content %}
+<section>
+  <h1><p>You are looking:</p></h1>
+  <ul>
+    <li><p>Item name: {{ object.name }}</p></li>
+    <li><p>Item description: {{ object.description }}</p></li>
+    <li><p>Item price: {{ object.price }}</p></li>
+  </ul>
+  <form action="{% url 'payment:buy' object.pk %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="Buy">
+  </form>
+</section>
+{% include "payment/includes/back_to_main.html" %}
+{% endblock %}
