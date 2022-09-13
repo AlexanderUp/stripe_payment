@@ -10,9 +10,6 @@ from .models import Item
 
 class BuyView(RedirectView):
 
-    def get_object(self):
-        return Item.objects.get(pk=self.kwargs.get("pk"))
-
     def get(self, request, *args, **kwargs):
         item = Item.objects.get(pk=self.kwargs.get("pk"))
         domain_url = 'http://localhost:8000/'
