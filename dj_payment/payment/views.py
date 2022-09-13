@@ -12,7 +12,7 @@ class BuyView(RedirectView):
 
     def get(self, request, *args, **kwargs):
         item = Item.objects.get(pk=self.kwargs.get("pk"))
-        domain_url = 'http://localhost:8000/'
+        domain_url = settings.DOMAIN_URL
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
             checkout_session = stripe.checkout.Session.create(
