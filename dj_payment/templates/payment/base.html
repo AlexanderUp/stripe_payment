@@ -7,5 +7,11 @@
   </head>
   <body>
     {% block content %}{% endblock %}
+    <hr>
+    {% with request.resolver_match.view_name as view_name %}
+      {% if view_name != "payment:cart" %}
+        {% include "payment/includes/go_to_cart.html" %}
+      {% endif %}
+    {% endwith %}
   </body>
 </html>

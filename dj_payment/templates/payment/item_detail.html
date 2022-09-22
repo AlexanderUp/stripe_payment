@@ -8,10 +8,8 @@
     <li><p>Item description: {{ object.description }}</p></li>
     <li><p>Item price: {{ object.price }}</p></li>
   </ul>
-  <form action="{% url 'payment:buy' object.pk %}" method="POST">
-    {% csrf_token %}
-    <input type="submit" value="Buy">
-  </form>
+  <!-- <p><a href="{% url 'payment:buy' object.pk %}">Buy</a></p> -->
+  <p><a href="{% url 'payment:add_to_cart' object.pk %}">Add to Cart</a></p>
 </section>
 {% include "payment/includes/back_to_main.html" %}
 {% endblock %}

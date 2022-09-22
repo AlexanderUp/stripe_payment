@@ -1,43 +1,35 @@
-import stripe
-from django.conf import settings
-from django.http import JsonResponse
-from django.shortcuts import redirect
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
 from django.views.generic import (DetailView, ListView, RedirectView,
                                   TemplateView)
 
-from .models import Item
+from .models import Cart, Item, Order
+from .utils import (create_and_call_checkout_session,
+                    create_line_items_bunch_purchase,
+                    create_line_items_single_purchase)
 
 
 class BuyView(RedirectView):
 
     def get(self, request, *args, **kwargs):
         item = Item.objects.get(pk=self.kwargs.get("pk"))
-        domain_url = settings.DOMAIN_URL
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        try:
-            checkout_session = stripe.checkout.Session.create(
-                success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=domain_url + "cancelled/",
-                payment_method_types=["card"],
-                mode="payment",
-                line_items=[
-                    {
-                        "price_data": {
-                            "currency": "usd",
-                            "unit_amount": int(item.price * 100),
-                            "product_data": {
-                                "name": item.name,
-                                "description": item.description,
-                            },
-                        },
-                        "quantity": 1,
-                    }
-                ]
-            )
-        except Exception as err:
-            return JsonResponse({"error": str(err)})
-        else:
-            return redirect(checkout_session.url, code=303)
+        url = create_and_call_checkout_session(
+            create_line_items_single_purchase, item
+        )
+        return redirect(url, code=303)
+
+
+class CartBuyView(RedirectView):
+
+    def get(self, request, *args, **kwargs):
+        cart_items = Cart.objects.filter(
+            order__session_id=request.session.session_key
+        ).select_related("item").all()
+        url = create_and_call_checkout_session(
+            create_line_items_bunch_purchase, cart_items
+        )
+        return redirect(url, code=303)
 
 
 class ItemDetailView(DetailView):
@@ -55,3 +47,60 @@ class SuccessTemplateView(TemplateView):
 
 class CancelledTemplateView(TemplateView):
     template_name = "payment/cancelled_payment.html"
+
+
+class CartListView(ListView):
+    template_name = "payment/cart.html"
+
+    def get_queryset(self):
+        session_id = self.request.session.session_key
+        if not session_id:
+            return HttpResponse("Problem with <session_key>!")
+        return (Cart.objects
+                    .select_related("item", "order")
+                    .filter(order__session_id=session_id))
+
+    def get_context_data(self, **kwargs):
+        content = super().get_context_data()
+        carts = Cart.objects.select_related("item", "order").filter(
+            order__session_id=self.request.session.session_key
+        )
+        total_price = sum(cart.item.price for cart in carts)
+        content["total_price"] = total_price
+        return content
+
+
+def add_to_cart(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    # if request.user.is_anonymous:
+    #     return HttpResponse("Anonymous user is not allowed!")
+    session_id = request.session.session_key
+    order, is_order_created = Order.objects.get_or_create(
+        session_id=session_id
+    )
+    count = 1
+    cart, is_cart_created = Cart.objects.get_or_create(
+        order=order, item=item, count=count
+    )
+    if not is_cart_created:
+        return HttpResponse(f"{cart} has been already created!")
+    return redirect(reverse("payment:index"))
+
+
+def delete_from_cart(request, pk):
+    session_key = request.session.session_key
+    # to be optimized
+    order = get_object_or_404(Order, session_id=session_key)
+    item = get_object_or_404(Item, pk=pk)
+    cart = get_object_or_404(Cart, order=order, item=item)
+    cart.delete()
+    # return HttpResponse(f"{item} from {cart} deleted!")
+    return redirect(reverse_lazy("payment:item_deleted_from_cart"))
+
+
+class ItemDeletedTemplateView(TemplateView):
+    template_name = "payment/item_deleted.html"
+
+
+def proceed_with_payment(request):
+    return HttpResponse("Proceed with payment.")

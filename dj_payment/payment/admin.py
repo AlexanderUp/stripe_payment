@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Item
+from .models import Cart, Item, Order
 
 
 class ItemAdmin(admin.ModelAdmin):
@@ -13,4 +13,25 @@ class ItemAdmin(admin.ModelAdmin):
     empty_value_display = "-empty-"
 
 
+class OrderAdmin(admin.ModelAdmin):
+    list_display = (
+        "pk",
+        "session_id",
+        "description",
+    )
+    empty_value_display = "-empty-"
+
+
+class CartAdmin(admin.ModelAdmin):
+    list_display = (
+        "pk",
+        "order",
+        "item",
+        "count",
+    )
+    empty_value_display = "-empty-"
+
+
 admin.site.register(Item, ItemAdmin)
+admin.site.register(Order, OrderAdmin)
+admin.site.register(Cart, CartAdmin)

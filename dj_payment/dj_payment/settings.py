@@ -139,4 +139,20 @@ INTERNAL_IPS = [
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 
-DOMAIN_URL = 'http://localhost:8000/'
+DOMAIN_URL = 'http://127.0.0.1:8000/'
+
+LOGGING = {
+    "version": 1, 
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django.db.backends": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+        }
+    }
+}

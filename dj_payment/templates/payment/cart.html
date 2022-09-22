@@ -1,0 +1,28 @@
+{% extends "payment/base.html" %}
+{% block title %}Cart{% endblock %}
+{% block content %}
+<h1>Cart content</h1>
+<h3>Total item in cart: {{ object_list.count }}</h3>
+  {% for object in object_list %}
+    <p>{{ object.order }}</p>
+    <p>{{ object.item }}</p>
+    <p>Count: {{ object.count }}</p>
+    <p>Price: {{ object.item.price }}</p>
+    {% if object %}
+      <p><a href="{% url 'payment:delete_from_cart' object.item.pk %}">Delete item</a></p>
+    {% endif %}
+    {% if not forloop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+  <hr>
+  <h3>Total price:</h3>
+  {% if total_price %}
+    <p>{{ total_price }}</p>
+  {% else %}
+    <p>Total price here will be as Yoda said</p>
+  {% endif %}
+  <hr>
+  <a href="{% url 'payment:proceed_with_payment' %}">Proceed with payment</a>
+  {% include "payment/includes/back_to_main.html" %}
+{% endblock %}
