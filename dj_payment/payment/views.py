@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (DetailView, ListView, RedirectView,
                                   TemplateView)
+from django.views.generic.edit import FormView
 
 from .forms import CountForm
 from .models import Cart, Item, Order
@@ -123,3 +124,33 @@ def set_item_count(request, pk):
         "form": form
     }
     return render(request, "payment/set_item.html", context)
+
+
+class SetItemCountForm(FormView):
+    form_class = CountForm
+    template_name = "payment/set_item.html"
+    success_url = reverse_lazy("payment:cart")
+
+    def form_valid(self, form):
+        item = get_object_or_404(Item, pk=self.kwargs.get("pk"))
+        cart = get_object_or_404(
+            Cart,
+            order__session_id=self.request.session.session_key,
+            item=item
+        )
+        cart.count = form.cleaned_data.get("count")
+        cart.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["item"] = Item.objects.get(pk=self.kwargs.get("pk"))
+        return context
+
+    def get_initial(self):
+        cart = get_object_or_404(
+            Cart,
+            order__session_id=self.request.session.session_key,
+            item__id=self.kwargs.get("pk")
+        )
+        return {"count": cart.count}

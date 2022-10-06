@@ -17,9 +17,14 @@ urlpatterns = [
         views.delete_from_cart,
         name="delete_from_cart"
     ),
+    # path(
+    #     "cart/item/<int:pk>/set_item_count/",
+    #     views.set_item_count,
+    #     name="set_item_count"
+    # ),
     path(
         "cart/item/<int:pk>/set_item_count/",
-        views.set_item_count,
+        views.SetItemCountForm.as_view(),
         name="set_item_count"
     ),
     path(
