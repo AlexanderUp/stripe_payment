@@ -3,7 +3,7 @@ from django.conf import settings
 from django.http import JsonResponse
 
 
-def create_item_attr_dict(item):
+def create_item_attr_dict(item, count=1):
     item_attr_dict = {
         "price_data": {
             "currency": "usd",
@@ -13,8 +13,7 @@ def create_item_attr_dict(item):
                 "description": item.description,
             },
         },
-        # to be refactored
-        "quantity": 1,
+        "quantity": count,
     }
     return item_attr_dict
 
@@ -24,7 +23,9 @@ def create_line_items_single_purchase(item):
 
 
 def create_line_items_bunch_purchase(cart_items):
-    return [create_item_attr_dict(cart.item) for cart in cart_items]
+    return [
+        create_item_attr_dict(cart.item, cart.count) for cart in cart_items
+    ]
 
 
 def create_and_call_checkout_session(line_createion_func, item_object):

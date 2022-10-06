@@ -19,6 +19,7 @@ class Order(models.Model):
     class Meta:
         verbose_name = "Order"
         verbose_name_plural = "Orders"
+        ordering = ("-id",)
 
     def __str__(self):
         return f"Order({self.session_id})"
@@ -45,6 +46,7 @@ class Item(models.Model):
     class Meta:
         verbose_name = "Item"
         verbose_name_plural = "Items"
+        ordering = ("-id",)
 
     def __str__(self):
         return f"Item({self.name})"
@@ -54,16 +56,16 @@ class Cart(models.Model):
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
-        related_name="order_item_pairs",
-        verbose_name="Order Item pair",
-        help_text="Order Item pair",
+        related_name="order_cart_pairs",
+        verbose_name="Order Cart pair",
+        help_text="Order Cart pair",
     )
     item = models.ForeignKey(
         Item,
         on_delete=models.CASCADE,
-        related_name="item_order_pairs",
-        verbose_name="Item Order pair",
-        help_text="Item Order pair",
+        related_name="item_cart_pairs",
+        verbose_name="Item Cart pair",
+        help_text="Item Cart pair",
     )
     count = models.PositiveIntegerField(
         default=0,
@@ -77,6 +79,7 @@ class Cart(models.Model):
     class Meta:
         verbose_name = "Cart"
         verbose_name_plural = "Carts"
+        ordering = ("-id",)
         constraints = [
             models.UniqueConstraint(
                 fields=["order", "item"], name="unique_pair_order_item"

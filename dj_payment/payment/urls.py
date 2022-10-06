@@ -18,6 +18,11 @@ urlpatterns = [
         name="delete_from_cart"
     ),
     path(
+        "cart/item/<int:pk>/set_item_count/",
+        views.set_item_count,
+        name="set_item_count"
+    ),
+    path(
         "cart/deleted_from_cart_success",
         views.ItemDeletedTemplateView.as_view(),
         name="item_deleted_from_cart"

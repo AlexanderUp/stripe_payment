@@ -1,9 +1,10 @@
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (DetailView, ListView, RedirectView,
                                   TemplateView)
 
+from .forms import CountForm
 from .models import Cart, Item, Order
 from .utils import (create_and_call_checkout_session,
                     create_line_items_bunch_purchase,
@@ -65,15 +66,21 @@ class CartListView(ListView):
         carts = Cart.objects.select_related("item", "order").filter(
             order__session_id=self.request.session.session_key
         )
-        total_price = sum(cart.item.price for cart in carts)
+        total_price = sum(
+            (cart.item.price * cart.count) for cart in carts
+        )
         content["total_price"] = total_price
         return content
 
 
+class ItemDeletedTemplateView(TemplateView):
+    template_name = "payment/item_deleted.html"
+
+
 def add_to_cart(request, pk):
     item = get_object_or_404(Item, pk=pk)
-    # if request.user.is_anonymous:
-    #     return HttpResponse("Anonymous user is not allowed!")
+    if request.user.is_anonymous:
+        return HttpResponse("Anonymous user is not allowed!")
     session_id = request.session.session_key
     order, is_order_created = Order.objects.get_or_create(
         session_id=session_id
@@ -89,18 +96,30 @@ def add_to_cart(request, pk):
 
 def delete_from_cart(request, pk):
     session_key = request.session.session_key
-    # to be optimized
-    order = get_object_or_404(Order, session_id=session_key)
-    item = get_object_or_404(Item, pk=pk)
-    cart = get_object_or_404(Cart, order=order, item=item)
+    cart = Cart.objects.get(item__pk=pk, order__session_id=session_key)
     cart.delete()
-    # return HttpResponse(f"{item} from {cart} deleted!")
     return redirect(reverse_lazy("payment:item_deleted_from_cart"))
 
 
-class ItemDeletedTemplateView(TemplateView):
-    template_name = "payment/item_deleted.html"
-
-
-def proceed_with_payment(request):
-    return HttpResponse("Proceed with payment.")
+def set_item_count(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    cart = get_object_or_404(
+        Cart,
+        order__session_id=request.session.session_key,
+        item=item
+    )
+    form = CountForm(
+        request.POST or None,
+        initial={
+            "count": cart.count
+        }
+    )
+    if form.is_valid():
+        cart.count = form.cleaned_data.get("count")
+        cart.save()
+        return redirect(reverse("payment:cart"))
+    context = {
+        "item": item,
+        "form": form
+    }
+    return render(request, "payment/set_item.html", context)

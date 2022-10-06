@@ -2,7 +2,7 @@
 {% block title %}Cart{% endblock %}
 {% block content %}
 <h1>Cart content</h1>
-<h3>Total item in cart: {{ object_list.count }}</h3>
+<h3>Total different items in cart: {{ object_list.count }}</h3>
   {% for object in object_list %}
     <p>{{ object.order }}</p>
     <p>{{ object.item }}</p>
@@ -10,6 +10,7 @@
     <p>Price: {{ object.item.price }}</p>
     {% if object %}
       <p><a href="{% url 'payment:delete_from_cart' object.item.pk %}">Delete item</a></p>
+      <p><a href="{% url 'payment:set_item_count' object.item.pk %}">Set item count</a></p>
     {% endif %}
     {% if not forloop.last %}
       <hr>
