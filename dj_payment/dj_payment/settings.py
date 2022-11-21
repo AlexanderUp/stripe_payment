@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'payment.apps.PaymentConfig',
-    'api.apps.ApiConfig',
     'debug_toolbar',
 ]
 

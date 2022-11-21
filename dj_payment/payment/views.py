@@ -54,6 +54,12 @@ class IndexListView(ListView):
 class SuccessTemplateView(TemplateView):
     template_name = "payment/success_payment.html"
 
+    def get(self, request, *args, **kwargs):
+        Cart.objects.filter(
+            order__session_id=request.session.session_key
+        ).delete()
+        return super().get(request, *args, **kwargs)
+
 
 class CancelledTemplateView(TemplateView):
     template_name = "payment/cancelled_payment.html"
