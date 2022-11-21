@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@4lim)$kn0gbglgm#5lja%e3(%e-0ic&z0w3oj^!do%&z%t8_l'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -142,7 +142,7 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 DOMAIN_URL = 'http://127.0.0.1:8000/'
 
 LOGGING = {
-    "version": 1, 
+    "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
         "console": {

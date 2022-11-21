@@ -132,11 +132,11 @@ class SetItemCountForm(FormView):
     success_url = reverse_lazy("payment:cart")
 
     def form_valid(self, form):
-        item = get_object_or_404(Item, pk=self.kwargs.get("pk"))
+        # item = get_object_or_404(Item, pk=self.kwargs.get("pk"))
         cart = get_object_or_404(
             Cart,
             order__session_id=self.request.session.session_key,
-            item=item
+            item__id=self.kwargs.get("pk")
         )
         cart.count = form.cleaned_data.get("count")
         cart.save()
