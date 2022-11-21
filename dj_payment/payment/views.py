@@ -17,10 +17,10 @@ class BuyView(RedirectView):
 
     def get(self, request, *args, **kwargs):
         item = Item.objects.get(pk=self.kwargs.get("pk"))
-        url = create_and_call_checkout_session(
+        session = create_and_call_checkout_session(
             create_line_items_single_purchase, item
         )
-        return redirect(url, code=303)
+        return redirect(session.url, code=303)
 
 
 class CartBuyView(RedirectView):
@@ -36,10 +36,10 @@ class CartBuyView(RedirectView):
             return render(
                 request, "payment/error_template.html", context=context
             )
-        url = create_and_call_checkout_session(
+        session = create_and_call_checkout_session(
             create_line_items_bunch_purchase, cart_items
         )
-        return redirect(url, code=303)
+        return redirect(session.url, code=303)
 
 
 class ItemDetailView(DetailView):
@@ -71,15 +71,15 @@ class CartListView(ListView):
                     .filter(order__session_id=session_id))
 
     def get_context_data(self, **kwargs):
-        content = super().get_context_data()
+        context = super().get_context_data()
         carts = Cart.objects.select_related("item", "order").filter(
             order__session_id=self.request.session.session_key
         )
         total_price = sum(
             (cart.item.price * cart.count) for cart in carts
         )
-        content["total_price"] = total_price
-        return content
+        context["total_price"] = total_price
+        return context
 
 
 class ItemDeletedTemplateView(TemplateView):

@@ -45,4 +45,4 @@ def create_and_call_checkout_session(line_createion_func, item_object):
     except Exception as err:
         return JsonResponse({"error": str(err)})
     else:
-        return checkout_session.url
+        return checkout_session
