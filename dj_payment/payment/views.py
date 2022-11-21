@@ -1,3 +1,4 @@
+# from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -28,6 +29,13 @@ class CartBuyView(RedirectView):
         cart_items = Cart.objects.filter(
             order__session_id=request.session.session_key
         ).select_related("item").all()
+        if not cart_items:
+            context = {
+                "error_message": "Empty cart is not allowed to proceed with payment."
+            }
+            return render(
+                request, "payment/error_template.html", context=context
+            )
         url = create_and_call_checkout_session(
             create_line_items_bunch_purchase, cart_items
         )
@@ -102,37 +110,12 @@ def delete_from_cart(request, pk):
     return redirect(reverse_lazy("payment:item_deleted_from_cart"))
 
 
-def set_item_count(request, pk):
-    item = get_object_or_404(Item, pk=pk)
-    cart = get_object_or_404(
-        Cart,
-        order__session_id=request.session.session_key,
-        item=item
-    )
-    form = CountForm(
-        request.POST or None,
-        initial={
-            "count": cart.count
-        }
-    )
-    if form.is_valid():
-        cart.count = form.cleaned_data.get("count")
-        cart.save()
-        return redirect(reverse("payment:cart"))
-    context = {
-        "item": item,
-        "form": form
-    }
-    return render(request, "payment/set_item.html", context)
-
-
 class SetItemCountForm(FormView):
     form_class = CountForm
     template_name = "payment/set_item.html"
     success_url = reverse_lazy("payment:cart")
 
     def form_valid(self, form):
-        # item = get_object_or_404(Item, pk=self.kwargs.get("pk"))
         cart = get_object_or_404(
             Cart,
             order__session_id=self.request.session.session_key,

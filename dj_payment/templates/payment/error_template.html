@@ -1,0 +1,11 @@
+{% extends "payment/base.html" %}
+{% block title %}Error message{% endblock %}
+{% block content %}
+    <div>
+        <h2>You got a message! Error-related, unfortunately.</h2>
+        <p>{{error_message}}</p>
+    </div>
+    <div>
+        {% include "payment/includes/back_to_main.html" %}
+    </div>
+{% endblock %}

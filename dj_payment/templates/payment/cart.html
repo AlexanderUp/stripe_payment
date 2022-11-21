@@ -24,6 +24,8 @@
     <p>Total price here will be as Yoda said</p>
   {% endif %}
   <hr>
-  <a href="{% url 'payment:proceed_with_payment' %}">Proceed with payment</a>
+  {% if object_list %}
+    <a href="{% url 'payment:proceed_with_payment' %}">Proceed with payment</a>
+  {% endif %}
   {% include "payment/includes/back_to_main.html" %}
 {% endblock %}
