@@ -30,7 +30,10 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'https://alexanderup.pythonanywhere.com/',
+    '127.0.0.1',
+]
 
 
 # Application definition
@@ -43,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'payment.apps.PaymentConfig',
+    'users.apps.UsersConfig',
     'debug_toolbar',
 ]
 
@@ -119,6 +123,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+LOGIN_URL = 'users:login'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -139,7 +145,10 @@ INTERNAL_IPS = [
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 
-DOMAIN_URL = 'http://127.0.0.1:8000/'
+if DEBUG:
+    DOMAIN_URL = 'http://127.0.0.1:8000/'
+else:
+    DOMAIN_URL = 'https://alexanderup.pythonanywhere.com/'
 
 LOGGING = {
     "version": 1,

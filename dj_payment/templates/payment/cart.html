@@ -8,7 +8,7 @@
     <p>{{ object.item }}</p>
     <p>Count: {{ object.count }}</p>
     <p>Price: {{ object.item.price }}</p>
-    {% if object %}
+    {% if object.item %}
       <p><a href="{% url 'payment:delete_from_cart' object.item.pk %}">Delete item</a></p>
       <p><a href="{% url 'payment:set_item_count' object.item.pk %}">Set item count</a></p>
     {% endif %}

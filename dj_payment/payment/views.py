@@ -1,4 +1,4 @@
-# from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -92,13 +92,18 @@ class ItemDeletedTemplateView(TemplateView):
     template_name = "payment/item_deleted.html"
 
 
+@login_required
 def add_to_cart(request, pk):
     item = get_object_or_404(Item, pk=pk)
     if request.user.is_anonymous:
-        return HttpResponse("Anonymous user is not allowed!")
-    session_id = request.session.session_key
+        context = {
+            "error_message": "Anonymous user is not allowed!",
+        }
+        return render(
+            request, "payment/error_template.html", context=context
+        )
     order, is_order_created = Order.objects.get_or_create(
-        session_id=session_id
+        session_id=request.session.session_key
     )
     count = 1
     cart, is_cart_created = Cart.objects.get_or_create(

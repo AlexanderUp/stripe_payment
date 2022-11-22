@@ -23,7 +23,7 @@ urlpatterns = [
         name="set_item_count"
     ),
     path(
-        "cart/deleted_from_cart_success",
+        "cart/deleted_from_cart_success/",
         views.ItemDeletedTemplateView.as_view(),
         name="item_deleted_from_cart"
     ),
