@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'payment.apps.PaymentConfig',
     'users.apps.UsersConfig',
+    'core.apps.CoreConfig',
     'debug_toolbar',
 ]
 
@@ -126,6 +127,8 @@ USE_TZ = True
 LOGIN_URL = 'users:login'
 
 LOGIN_REDIRECT_URL = 'payment:index'
+
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 
 # Static files (CSS, JavaScript, Images)
