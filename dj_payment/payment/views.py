@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -13,7 +14,7 @@ from .utils import (create_and_call_checkout_session,
                     create_line_items_single_purchase)
 
 
-class BuyView(RedirectView):
+class BuyView(LoginRequiredMixin, RedirectView):
 
     def get(self, request, *args, **kwargs):
         item = Item.objects.get(pk=self.kwargs.get("pk"))
@@ -23,7 +24,7 @@ class BuyView(RedirectView):
         return redirect(session.url, code=303)
 
 
-class CartBuyView(RedirectView):
+class CartBuyView(LoginRequiredMixin, RedirectView):
 
     def get(self, request, *args, **kwargs):
         cart_items = Cart.objects.filter(

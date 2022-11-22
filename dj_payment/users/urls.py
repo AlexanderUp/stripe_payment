@@ -1,6 +1,8 @@
 from django.contrib.auth import views as django_auth_views
 from django.urls import path
 
+from .views import SingUpView
+
 app_name = "users"
 
 urlpatterns = [
@@ -15,5 +17,9 @@ urlpatterns = [
             template_name="users/logout.html"),
         name="logout"
     ),
-    # path("signup/", , name="signup"),
+    path(
+        "signup/",
+        SingUpView.as_view(template_name="users/signup.html"),
+        name="signup"
+    ),
 ]

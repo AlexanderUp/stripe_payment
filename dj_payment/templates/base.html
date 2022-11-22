@@ -8,6 +8,19 @@
   </head>
   <body>
     {% block content %}{% endblock %}
+    <hr>
+    {% with request.resolver_match.view_name as view_name %}
+      {% if view_name != "payment:cart" %}
+        {% include "payment/includes/go_to_cart.html" %}
+      {% endif %}
+    {% endwith %}
   </body>
-  <footer>{% block footer %}{% endblock %}</footer>
+  <footer>
+    {% block footer %}{% endblock %}
+    {% with request.resolver_match.view_name as view_name %}
+      {% if view_name != "payment:index" %}
+        {% include "payment/includes/back_to_main.html" %}
+      {% endif %}
+    {% endwith %}
+  </footer>
 </html>

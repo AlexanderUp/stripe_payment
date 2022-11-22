@@ -125,6 +125,8 @@ USE_TZ = True
 
 LOGIN_URL = 'users:login'
 
+LOGIN_REDIRECT_URL = 'payment:index'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

@@ -1,4 +1,4 @@
-{% extends "payment/base.html" %}
+{% extends "base.html" %}
 {% block title %}Cart{% endblock %}
 {% block content %}
 <h1>Cart content</h1>
@@ -24,8 +24,9 @@
     <p>Total price here will be as Yoda said</p>
   {% endif %}
   <hr>
-  {% if object_list %}
+  {% if user.is_authenticated %}
     <a href="{% url 'payment:proceed_with_payment' %}">Proceed with payment</a>
+  {% else %}
+    <a href="{% url 'users:login' %}">Login to proceed with payment</a>
   {% endif %}
-  {% include "payment/includes/back_to_main.html" %}
 {% endblock %}
