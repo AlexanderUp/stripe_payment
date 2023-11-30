@@ -1,35 +1,35 @@
 from django.contrib import admin
 
-from .models import Cart, Item, Order
+from payment.models import Cart, Item, Order
 
 
 class ItemAdmin(admin.ModelAdmin):
     list_display = (
-        "pk",
-        "name",
-        "description",
-        "price",
+        'pk',
+        'name',
+        'description',
+        'price',
     )
-    empty_value_display = "-empty-"
+    empty_value_display = '-empty-'
 
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
-        "pk",
-        "session_id",
-        "description",
+        'pk',
+        'session_id',
+        'description',
     )
-    empty_value_display = "-empty-"
+    empty_value_display = '-empty-'
 
 
 class CartAdmin(admin.ModelAdmin):
     list_display = (
-        "pk",
-        "order",
-        "item",
-        "count",
+        'pk',
+        'order',
+        'item',
+        'count',
     )
-    empty_value_display = "-empty-"
+    empty_value_display = '-empty-'
 
 
 admin.site.register(Item, ItemAdmin)

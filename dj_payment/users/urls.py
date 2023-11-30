@@ -1,25 +1,24 @@
 from django.contrib.auth import views as django_auth_views
 from django.urls import path
 
-from .views import SingUpView
+from users.views import SingUpView
 
-app_name = "users"
+app_name = 'users'
 
 urlpatterns = [
     path(
-        "login/",
-        django_auth_views.LoginView.as_view(template_name="users/login.html"),
-        name="login"
+        'login/',
+        django_auth_views.LoginView.as_view(template_name='users/login.html'),
+        name='login',
     ),
     path(
-        "logout/",
-        django_auth_views.LogoutView.as_view(
-            template_name="users/logout.html"),
-        name="logout"
+        'logout/',
+        django_auth_views.LogoutView.as_view(template_name='users/logout.html'),
+        name='logout',
     ),
     path(
-        "signup/",
-        SingUpView.as_view(template_name="users/signup.html"),
-        name="signup"
+        'signup/',
+        SingUpView.as_view(template_name='users/signup.html'),
+        name='signup',
     ),
 ]

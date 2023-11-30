@@ -1,0 +1,26 @@
+[tool.black]
+skip-string-normalization=true
+skip-magic-trailing-comma=false
+line-length=89
+
+[tool.flake8]
+ignore=['D100', 'D101', 'D102', 'D103', 'D105', 'D106', 'WPS100', 'WPS110', 'WPS305', 'WPS348']
+per-file-ignores = [
+    'dj_payment/dj_payment/urls.py:WPS433',
+    'dj_payment/payment/views.py:WPS202,WPS210,WPS226',
+    'dj_payment/payment/utils.py:B902,WPS336',
+    'models.py:WPS221,WPS306,WPS432',
+    'settings.py:WPS226,WPS407',
+]
+exclude=['.git', 'env/', 'venv/', 'temp/', '*.md', '__pycache__/']
+max-cognitive-complexity=10
+max-line-length=89
+class_attributes_order=['field', 'meta_class', 'nested_class', 'magic_method', 'property_method', 'static_method', 'class_method', 'method', 'private_method']
+
+[tool.isort]
+known_first_party=['core', 'payment', 'users']
+profile='black'
+
+[tool.mypy]
+exclude=['venv/']
+ignore_missing_imports=true
