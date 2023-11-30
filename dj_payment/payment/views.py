@@ -1,11 +1,12 @@
 from http import HTTPStatus
 
-from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import DetailView, ListView, RedirectView, TemplateView
+from django.views import View
+from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import FormView
 
 from payment.forms import CountForm
@@ -17,17 +18,17 @@ from payment.utils import (
 )
 
 
-class BuyView(LoginRequiredMixin, RedirectView):
+class BuyView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         item = Item.objects.get(pk=self.kwargs.get('pk'))
-        session = create_and_call_checkout_session(
+        stripe_session = create_and_call_checkout_session(
             create_line_items_single_purchase,
             item,
         )
-        return redirect(session.url, code=HTTPStatus.SEE_OTHER)
+        return JsonResponse({'session_id': stripe_session.id})
 
 
-class CartBuyView(LoginRequiredMixin, RedirectView):
+class CartBuyView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         cart_items = (
             Cart.objects.filter(order__session_id=request.session.session_key)
@@ -48,6 +49,11 @@ class CartBuyView(LoginRequiredMixin, RedirectView):
 
 class ItemDetailView(DetailView):
     model = Item
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['stripe_pub_key'] = settings.STRIPE_PUBLISHABLE_KEY
+        return context
 
 
 class IndexListView(ListView):
@@ -92,34 +98,32 @@ class ItemDeletedTemplateView(TemplateView):
     template_name = 'payment/item_deleted.html'
 
 
-@login_required
-def add_to_cart(request, pk):
-    if request.user.is_anonymous:
-        context = {
-            'error_message': 'Anonymous user is not allowed!',
-        }
-        return render(request, 'payment/error_template.html', context=context)
-
-    item = get_object_or_404(Item, pk=pk)
-    order, _ = Order.objects.get_or_create(
-        session_id=request.session.session_key,
-    )
-    count = 1
-    cart, is_cart_created = Cart.objects.get_or_create(
-        order=order,
-        item=item,
-        count=count,
-    )
-    if not is_cart_created:
-        return HttpResponse(f'{cart} has been already created!')
-    return redirect(reverse('payment:index'))
+class AddToCartView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        item = get_object_or_404(Item, pk=self.kwargs.get('pk'))
+        order, _ = Order.objects.get_or_create(
+            session_id=request.session.session_key,
+        )
+        count = 1
+        cart, is_cart_created = Cart.objects.get_or_create(
+            order=order,
+            item=item,
+            count=count,
+        )
+        if not is_cart_created:
+            return HttpResponse(f'{cart} has been already created!')
+        return redirect(reverse('payment:index'))
 
 
-def delete_from_cart(request, pk):
-    session_key = request.session.session_key
-    cart = Cart.objects.get(item__pk=pk, order__session_id=session_key)
-    cart.delete()
-    return redirect(reverse_lazy('payment:item_deleted_from_cart'))
+class DeleteFromCartView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        session_key = request.session.session_key
+        cart = Cart.objects.get(
+            item__pk=self.kwargs.get('pk'),
+            order__session_id=session_key,
+        )
+        cart.delete()
+        return redirect(reverse_lazy('payment:item_deleted_from_cart'))
 
 
 class SetItemCountForm(FormView):

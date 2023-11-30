@@ -31,8 +31,8 @@ def create_and_call_checkout_session(line_creation_func, item_object):
 
     try:
         checkout_session = stripe.checkout.Session.create(
-            success_url=(domain_url + 'success?session_id={CHECKOUT_SESSION_ID}'),
-            cancel_url=domain_url + 'cancelled/',
+            success_url=(domain_url + 'success'),
+            cancel_url=(domain_url + 'cancelled'),
             payment_method_types=['card'],
             mode='payment',
             line_items=line_creation_func(item_object),
