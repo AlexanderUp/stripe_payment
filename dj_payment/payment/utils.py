@@ -25,7 +25,7 @@ def create_line_items_bunch_purchase(cart_items):
     return [create_item_attr_dict(cart.item, cart.count) for cart in cart_items]
 
 
-def create_and_call_checkout_session(line_createion_func, item_object):
+def create_and_call_checkout_session(line_creation_func, item_object):
     domain_url = settings.DOMAIN_URL
     stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -35,7 +35,7 @@ def create_and_call_checkout_session(line_createion_func, item_object):
             cancel_url=domain_url + 'cancelled/',
             payment_method_types=['card'],
             mode='payment',
-            line_items=line_createion_func(item_object),
+            line_items=line_creation_func(item_object),
         )
     except Exception as err:
         return JsonResponse({'error': str(err)})

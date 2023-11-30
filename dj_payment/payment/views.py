@@ -94,12 +94,13 @@ class ItemDeletedTemplateView(TemplateView):
 
 @login_required
 def add_to_cart(request, pk):
-    item = get_object_or_404(Item, pk=pk)
     if request.user.is_anonymous:
         context = {
             'error_message': 'Anonymous user is not allowed!',
         }
         return render(request, 'payment/error_template.html', context=context)
+
+    item = get_object_or_404(Item, pk=pk)
     order, _ = Order.objects.get_or_create(
         session_id=request.session.session_key,
     )
