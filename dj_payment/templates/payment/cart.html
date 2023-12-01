@@ -17,13 +17,23 @@
     {% endif %}
   {% endfor %}
   <hr>
-  <h3>Total price:</h3>
+
+  <h3>Total:</h3>
   {% if total_price %}
-    <p>{{ total_price }}</p>
+    <p>Total price: {{ total_price }}</p>
   {% else %}
     <p>Total price here will be as Yoda said</p>
   {% endif %}
+
+  {% if total_taxes %}
+    <p>Total taxes: {{ total_taxes|floatformat:2 }}</p>
+  {% endif %}
+
+  {% if grand_total %}
+    <p>Grand total: {{ grand_total|floatformat:2 }}</p>
+  {% endif %}
   <hr>
+
   {% if user.is_authenticated %}
     <a href="{% url 'payment:proceed_with_payment' %}">Proceed with payment</a>
   {% else %}

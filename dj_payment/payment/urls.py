@@ -8,11 +8,13 @@ urlpatterns = [
     path('success/', views.SuccessTemplateView.as_view(), name='success'),
     path('cancelled/', views.CancelledTemplateView.as_view(), name='cancelled'),
     path('buy/<int:pk>/', views.BuyView.as_view(), name='buy'),
-    path('item/<int:pk>/add_to_cart/', views.add_to_cart, name='add_to_cart'),
+    path(
+        'item/<int:pk>/add_to_cart/', views.AddToCartView.as_view(), name='add_to_cart'
+    ),
     path('item/<int:pk>/', views.ItemDetailView.as_view(), name='item'),
     path(
         'cart/item/<int:pk>/delete_from_cart/',
-        views.delete_from_cart,
+        views.DeleteFromCartView.as_view(),
         name='delete_from_cart',
     ),
     path(

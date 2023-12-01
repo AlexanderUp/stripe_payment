@@ -8,7 +8,27 @@
     <li><p>Item description: {{ object.description }}</p></li>
     <li><p>Item price: {{ object.price }}</p></li>
   </ul>
-  <!-- <p><a href="{% url 'payment:buy' object.pk %}">Buy</a></p> -->
   <p><a href="{% url 'payment:add_to_cart' object.pk %}">Add to Cart</a></p>
+  <p><button id="purchase_button">Instant purchase</button></p>
+
+  <script type="text/javascript" src="https://js.stripe.com/v3/"></script>
+  <script>
+    var stripe = Stripe("{{ stripe_pub_key }}");
+    var purchaseButton = document.getElementById('purchase_button');
+    purchaseButton.addEventListener('click', function() {
+      fetch("{% url 'payment:buy' object.pk %}")
+      .then(function (response) {
+          return response.json();
+      })
+      .then(function (data) {
+          return stripe.redirectToCheckout({sessionId: data.session_id});
+      })
+      .then(function (result) {
+          if (result.error) {
+              alert(result.error.message);
+          }
+      });
+    });
+  </script>
 </section>
 {% endblock %}
