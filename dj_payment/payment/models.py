@@ -83,6 +83,35 @@ class TaxRate(models.Model):
         return f'TaxRate({self.pk}-{self.stripe_tax_id})'
 
 
+class Discount(models.Model):
+    name = models.CharField(
+        max_length=255,
+        verbose_name='Discount',
+        help_text='Discount name',
+    )
+    percentage = models.DecimalField(
+        max_digits=6,
+        decimal_places=4,
+        verbose_name='percentage',
+        help_text='Discount percentage',
+    )
+    stripe_discount_id = models.CharField(
+        max_length=64,
+        verbose_name='stipe_discount_id',
+        help_text='Stripe discount ID',
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = 'Discount'
+        verbose_name_plural = 'Discounts'
+        ordering = ('-id',)
+
+    def __str__(self):
+        return f'TaxRate({self.pk}-{self.stripe_discount_id})'
+
+
 class Cart(models.Model):
     order = models.ForeignKey(
         Order,
@@ -110,6 +139,15 @@ class Cart(models.Model):
         related_name='cart_items',
         verbose_name='tax_rate_id',
         help_text='tax rate id',
+        null=True,
+        blank=True,
+    )
+    discount = models.ForeignKey(
+        Discount,
+        on_delete=models.CASCADE,
+        related_name='cart_items',
+        verbose_name='discount_id',
+        help_text='discount id',
         null=True,
         blank=True,
     )

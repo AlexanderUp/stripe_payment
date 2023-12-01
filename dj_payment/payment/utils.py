@@ -35,17 +35,26 @@ def create_line_items_bunch_purchase(cart_items):
     ]
 
 
-def create_and_call_checkout_session(line_creation_func, item_object):
+def create_and_call_checkout_session(
+    line_creation_func, item_object, discount_coupon=None
+):
     domain_url = settings.DOMAIN_URL
 
-    try:
-        checkout_session = stripe.checkout.Session.create(
-            success_url=(domain_url + 'success'),
-            cancel_url=(domain_url + 'cancelled'),
-            payment_method_types=['card'],
-            mode='payment',
-            line_items=line_creation_func(item_object),
+    session_data = {
+        'success_url': (domain_url + 'success'),
+        'cancel_url': (domain_url + 'cancelled'),
+        'payment_method_types': ['card'],
+        'mode': 'payment',
+        'line_items': line_creation_func(item_object),
+    }
+
+    if discount_coupon:
+        session_data.update(
+            {'discounts': [{'coupon': discount_coupon.stripe_discount_id}]},
         )
+
+    try:
+        checkout_session = stripe.checkout.Session.create(**session_data)
     except Exception as err:
         return JsonResponse({'error': str(err)})
     return checkout_session

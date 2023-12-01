@@ -10,7 +10,7 @@ from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import FormView
 
 from payment.forms import CountForm
-from payment.models import Cart, Item, Order, TaxRate
+from payment.models import Cart, Discount, Item, Order, TaxRate
 from payment.utils import (
     create_and_call_checkout_session,
     create_line_items_bunch_purchase,
@@ -21,9 +21,11 @@ from payment.utils import (
 class BuyView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         item = Item.objects.get(pk=self.kwargs.get('pk'))
+        discount = Discount.objects.last()
         stripe_session = create_and_call_checkout_session(
             create_line_items_single_purchase,
             item,
+            discount_coupon=discount,
         )
         return JsonResponse({'session_id': stripe_session.id})
 
@@ -40,9 +42,13 @@ class CartBuyView(LoginRequiredMixin, View):
                 'error_message': 'Empty cart is not allowed to proceed with payment.',
             }
             return render(request, 'payment/error_template.html', context=context)
+
+        discount = Discount.objects.last()
+
         session = create_and_call_checkout_session(
             create_line_items_bunch_purchase,
             cart_items,
+            discount_coupon=discount,
         )
         return redirect(session.url, code=HTTPStatus.SEE_OTHER)
 
