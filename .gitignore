@@ -149,6 +149,3 @@ dmypy.json
 static/
 posts/static/
 media/
-
-# dev related files
-requirements_dev.txt
