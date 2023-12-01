@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from payment.models import Cart, Item, Order
+from payment.models import Cart, Item, Order, TaxRate
 
 
 class ItemAdmin(admin.ModelAdmin):
@@ -28,10 +28,17 @@ class CartAdmin(admin.ModelAdmin):
         'order',
         'item',
         'count',
+        'tax_rate',
     )
+    empty_value_display = '-empty-'
+
+
+class TaxRateAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'percentage', 'stripe_tax_id')
     empty_value_display = '-empty-'
 
 
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Cart, CartAdmin)
+admin.site.register(TaxRate, TaxRateAdmin)

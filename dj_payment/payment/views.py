@@ -10,7 +10,7 @@ from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import FormView
 
 from payment.forms import CountForm
-from payment.models import Cart, Item, Order
+from payment.models import Cart, Item, Order, TaxRate
 from payment.utils import (
     create_and_call_checkout_session,
     create_line_items_bunch_purchase,
@@ -90,7 +90,16 @@ class CartListView(ListView):
             order__session_id=self.request.session.session_key,
         )
         total_price = sum((cart.item.price * cart.count) for cart in carts)
+        total_taxes = sum(
+            (cart.item.price * cart.tax_rate.percentage / 100) for cart in carts
+        )
+        grand_total = sum(
+            (cart.item.price * cart.count * (1 + cart.tax_rate.percentage / 100))
+            for cart in carts
+        )
         context['total_price'] = total_price
+        context['total_taxes'] = total_taxes
+        context['grand_total'] = grand_total
         return context
 
 
@@ -105,10 +114,12 @@ class AddToCartView(LoginRequiredMixin, View):
             session_id=request.session.session_key,
         )
         count = 1
+        default_tax_rate = TaxRate.objects.last()
         cart, is_cart_created = Cart.objects.get_or_create(
             order=order,
             item=item,
             count=count,
+            tax_rate=default_tax_rate,
         )
         if not is_cart_created:
             return HttpResponse(f'{cart} has been already created!')

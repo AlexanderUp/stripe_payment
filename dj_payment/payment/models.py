@@ -37,7 +37,9 @@ class Item(models.Model):
         help_text='Item description',
         verbose_name='Item description',
     )
-    price = models.FloatField(
+    price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
         validators=[MinValueValidator(0, message='Price cannot be negative.')],
         help_text='Item price',
         verbose_name='Item price',
@@ -50,6 +52,35 @@ class Item(models.Model):
 
     def __str__(self):
         return f'Item({self.name})'
+
+
+class TaxRate(models.Model):
+    name = models.CharField(
+        max_length=255,
+        verbose_name='TaxRate',
+        help_text='Tax Rate name',
+    )
+    percentage = models.DecimalField(
+        max_digits=6,
+        decimal_places=4,
+        verbose_name='percentage',
+        help_text='Tax Rate percentage',
+    )
+    stripe_tax_id = models.CharField(
+        max_length=64,
+        verbose_name='stipe_tax_id',
+        help_text='Stripe tax ID',
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = 'Tax Rate'
+        verbose_name_plural = 'Tax Rates'
+        ordering = ('-id',)
+
+    def __str__(self):
+        return f'TaxRate({self.pk}-{self.stripe_tax_id})'
 
 
 class Cart(models.Model):
@@ -73,6 +104,15 @@ class Cart(models.Model):
         help_text='Count of item in order',
         validators=[MinValueValidator(0, 'Item count can not be less than zero.')],
     )
+    tax_rate = models.ForeignKey(
+        TaxRate,
+        on_delete=models.CASCADE,
+        related_name='cart_items',
+        verbose_name='tax_rate_id',
+        help_text='tax rate id',
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         verbose_name = 'Cart'
@@ -85,4 +125,4 @@ class Cart(models.Model):
         ]
 
     def __str__(self):
-        return f'Cart({self.order})-{self.item}-Count({self.count})'
+        return f'Cart({self.order}-{self.item}-{self.count})'
