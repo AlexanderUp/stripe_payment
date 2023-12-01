@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'alexanderup.pythonanywhere.com/',
+    'alexanderup.pythonanywhere.com',
     '127.0.0.1',
 ]
 
@@ -99,8 +99,7 @@ LOGIN_REDIRECT_URL = 'payment:index'
 CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 STATIC_URL = 'static/'
-
-STATICFILES_DIRS = ((BASE_DIR / 'static'),)
+STATIC_ROOT = BASE_DIR / 'static'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
